@@ -4,13 +4,18 @@
 
 #include "DelayAgent.hpp"
 
-#define DELAY_PUSH_PERIOD_SEC 1000
+#define DELAY_PUSH_PERIOD_SEC 10000
+#define REQUIRED_STREAM "simple_stream"
 
 bool next_out(void *, obs_output_t *output) {
-	blog(LOG_INFO, "tapgame :: next");
 	// not needed yet: DelayAgent::DelayAgentContext *ctx = static_cast<DelayAgent::DelayAgentContext *>(param);
+	const char * name = obs_output_get_name(output);
 	uint32_t delay = obs_output_get_active_delay(output);
-	blog(LOG_INFO, "tapgame :: active delay %d", delay);
+
+	if (strncmp(REQUIRED_STREAM, name, 14) == 0) {
+		blog(LOG_INFO, "Stream Active Delay %d", delay);
+	}
+
 	return true;
 }
 
