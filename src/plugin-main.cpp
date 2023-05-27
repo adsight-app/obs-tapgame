@@ -20,24 +20,21 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <obs-frontend-api.h>
 #include <util/config-file.h>
 
+#include <QMainWindow>
+
 #include "plugin-macros.generated.h"
+#include <DelayAgent.hpp>
 
 OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 bool obs_module_load(void)
 {
-	blog(LOG_INFO, "11 :: scartill plugin loaded successfully (version %s)",
-	     PLUGIN_VERSION);
+	blog(LOG_INFO, "tapgame :: load");
+	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
 
-	config_t *conf = obs_frontend_get_profile_config();
-
-	if (!conf)
-		blog(LOG_INFO, "scartill :: Not such config");
-	
-	bool enabled = config_get_bool(conf, "Output", "DelayEnable");
-	int64_t delay = config_get_int(conf, "Output", "DelaySec");
-	blog(LOG_INFO, "scartill :: %d delay %d", enabled, delay);
+	blog(LOG_INFO, "tapgame :: creating DA");
+	new DelayAgent(main_window);
 
 	return true;
 }
