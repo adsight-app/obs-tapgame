@@ -34,7 +34,7 @@ bool obs_module_load(void)
 
 	if (!conf)
 		blog(LOG_INFO, "scartill :: Not such config");
-
+	
 	bool enabled = config_get_bool(conf, "Output", "DelayEnable");
 	int64_t delay = config_get_int(conf, "Output", "DelaySec");
 	blog(LOG_INFO, "scartill :: %d delay %d", enabled, delay);
