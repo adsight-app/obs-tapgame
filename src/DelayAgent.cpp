@@ -4,7 +4,6 @@
 #include <QRegularExpression>
 #include <QUrl>
 
-
 #include "plugin-macros.generated.h"
 
 #include "DelayAgent.hpp"
@@ -103,17 +102,22 @@ void DelayAgent::TimerDecrement() {
 		return;
 	}
 
+	ReportConnection();
+
 	if (!ctx_->found_delay) {
 		blog(LOG_INFO, "Streaming not started");
 		// TODO: Consider reporting to the platform
 		return;
 	}
+}
 
+void DelayAgent::ReportConnection() {
 	QString url = QString(ENDPOINT) + "?StreamerKey=" + ctx_->streamer_key;
 
 	blog(LOG_INFO, "Requesting %s", url.toStdString().c_str());
 	reply.reset(qnam.get(QNetworkRequest(url)));
 	connect(reply.get(), &QNetworkReply::finished, this, &DelayAgent::HttpFinished);
+	connect(reply.get(), &QNetworkReply::sslErrors, this, &DelayAgent::sslErrors);
 	blog(LOG_INFO, "Requested");
 }
 
@@ -122,4 +126,16 @@ void DelayAgent::HttpFinished(){
 	//QNetworkReply::NetworkError error = reply->error();
 	const QString &errorString = reply->errorString();
 	blog(LOG_WARNING, "HTTP Error %s", errorString.toStdString().c_str());
+}
+
+void DelayAgent::sslErrors(const QList<QSslError> &errors)
+{
+	QString errorString;
+	for (const QSslError &error : errors) {
+		if (!errorString.isEmpty())
+			errorString += '\n';
+		errorString += error.errorString();
+	}
+
+	blog(LOG_WARNING, "One or more TLS errors has occurred:\n%s", errorString.toStdString().c_str());
 }

@@ -33,7 +33,12 @@ bool obs_module_load(void)
 	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
 	new DelayAgent(main_window);
 
-	blog(LOG_INFO, "TapGame plugin initiated");
+#if QT_CONFIG(ssl)
+	blog(LOG_INFO, "TapGame plugin initiated with SSL");
+#else
+	blog(LOG_INFO, "TapGame plugin initiated without SSL");
+#endif
+	
 	return true;
 }
 

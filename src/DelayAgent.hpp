@@ -29,8 +29,10 @@ public:
 private:
 	void StartTimer();
 	void StopTimer();
+	void ReportConnection();
 
 private slots:
 	void TimerDecrement();
 	void HttpFinished();
+	void sslErrors(const QList<QSslError> &errors);
 };
