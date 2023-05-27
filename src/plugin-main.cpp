@@ -30,16 +30,14 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 
 bool obs_module_load(void)
 {
-	blog(LOG_INFO, "tapgame :: load");
 	const auto main_window = static_cast<QMainWindow *>(obs_frontend_get_main_window());
-
-	blog(LOG_INFO, "tapgame :: creating DA");
 	new DelayAgent(main_window);
 
+	blog(LOG_INFO, "TapGame plugin initiated");
 	return true;
 }
 
 void obs_module_unload()
 {
-	blog(LOG_INFO, "plugin unloaded");
+	blog(LOG_INFO, "TapGame plugin unloaded");
 }

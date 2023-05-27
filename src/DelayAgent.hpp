@@ -16,8 +16,8 @@ public:
 	DelayAgentContext *ctx_;
 
 private:
-	void StartTimer(DelayAgentContext *ctx);
-	void StopTimer(DelayAgentContext *ctx);
+	void StartTimer();
+	void StopTimer();
 
 private slots:
 	void TimerDecrement();
