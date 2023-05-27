@@ -3,7 +3,8 @@
 #include <QObject>
 #include <QTimer>
 #include <QString>
-// #include <QNetworkAccessManager>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 struct DelayAgentContext {
 	bool found_delay;
@@ -20,7 +21,8 @@ public:
 	~DelayAgent();
 
 	QTimer *timer;
-	//QNetworkAccessManager qnam;
+	QNetworkAccessManager qnam;
+	QScopedPointer<QNetworkReply, QScopedPointerDeleteLater> reply;
 
 	DelayAgentContext *ctx_;
 
@@ -30,4 +32,5 @@ private:
 
 private slots:
 	void TimerDecrement();
+	void HttpFinished();
 };

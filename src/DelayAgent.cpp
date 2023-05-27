@@ -2,6 +2,8 @@
 
 #include <QString>
 #include <QRegularExpression>
+#include <QUrl>
+
 
 #include "plugin-macros.generated.h"
 
@@ -41,7 +43,6 @@ bool next_source(void*param, obs_source_t* source) {
 			blog(LOG_WARNING,
 			     "No URL value found for 'tapgame' source");
 		} else {
-			blog(LOG_INFO, "TapGame Source URL value %s", value);
 			QRegularExpression re("StreamerKey=([^=&]+)");
 			QRegularExpressionMatch match = re.match(value);
 
@@ -108,7 +109,17 @@ void DelayAgent::TimerDecrement() {
 		return;
 	}
 
-	blog(LOG_INFO, "Plugin setup correct");
-	blog(LOG_INFO, "Stream Active Delay %d", ctx_->delay);
-	blog(LOG_INFO, "Streamer Key %s", ctx_->streamer_key.toStdString().c_str());
+	QString url = QString(ENDPOINT) + "?StreamerKey=" + ctx_->streamer_key;
+
+	blog(LOG_INFO, "Requesting %s", url.toStdString().c_str());
+	reply.reset(qnam.get(QNetworkRequest(url)));
+	connect(reply.get(), &QNetworkReply::finished, this, &DelayAgent::HttpFinished);
+	blog(LOG_INFO, "Requested");
+}
+
+void DelayAgent::HttpFinished(){
+	blog(LOG_INFO, "HTTP Finished");
+	//QNetworkReply::NetworkError error = reply->error();
+	const QString &errorString = reply->errorString();
+	blog(LOG_WARNING, "HTTP Error %s", errorString.toStdString().c_str());
 }
