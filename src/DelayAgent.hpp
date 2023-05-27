@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QString>
+// #include <QNetworkAccessManager>
 
 struct DelayAgentContext {
 	bool found_delay;
@@ -19,6 +20,7 @@ public:
 	~DelayAgent();
 
 	QTimer *timer;
+	//QNetworkAccessManager qnam;
 
 	DelayAgentContext *ctx_;
 

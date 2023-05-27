@@ -7,7 +7,9 @@
 
 #include "DelayAgent.hpp"
 
-#define DELAY_PUSH_PERIOD_SEC 5000
+#define ENDPOINT "https://4mtbvr6meium22qtmt3thewsfy0jrbpa.lambda-url.eu-west-2.on.aws/"
+
+#define DELAY_PUSH_PERIOD_SEC 10000
 #define REQUIRED_STREAM "simple_stream"
 #define REQUIRED_BROWSER_SOURCE "tapgame"
 #define URL_PROPERTY_NAME "url"
@@ -105,7 +107,6 @@ void DelayAgent::TimerDecrement() {
 		// TODO: Consider reporting to the platform
 		return;
 	}
-
 
 	blog(LOG_INFO, "Plugin setup correct");
 	blog(LOG_INFO, "Stream Active Delay %d", ctx_->delay);
