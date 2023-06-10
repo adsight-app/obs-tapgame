@@ -37,17 +37,13 @@ set_target_properties(
              AUTORCC ON)
 #]]
 
+set(OPENSSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/vendor/OpenSSL)
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)
+
 configure_file(src/plugin-macros.h.in ${CMAKE_SOURCE_DIR}/src/plugin-macros.generated.h)
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-macros.generated.h)
-
-set(OPENSSL_USE_STATIC_LIBS TRUE)
-add_subdirectory("vendor/openssl-cmake")
-set(OPENSSL_SSL_LIBRARY ssl)
-set(OPENSSL_CRYPTO_LIBRARY crypto)
-set(OPENSSL_INCLUDE_DIR "${openssl_BINARY_DIR}/include" "${openssl_BINARY_DIR}")
-set(OPENSSL_FOUND ON)
-message(STATUS "Build OpenSSL: ${openssl_BINARY_DIR}")
 
 # /!\ TAKE NOTE: No need to edit things past this point /!\
 
