@@ -123,9 +123,14 @@ void DelayAgent::ReportConnection() {
 
 void DelayAgent::HttpFinished(){
 	blog(LOG_INFO, "HTTP Finished");
-	//QNetworkReply::NetworkError error = reply->error();
-	const QString &errorString = reply->errorString();
-	blog(LOG_WARNING, "HTTP Error %s", errorString.toStdString().c_str());
+	QNetworkReply::NetworkError error = reply->error();
+	
+	if(error != QNetworkReply::NetworkError::NoError) {
+		const QString &errorString = reply->errorString();
+		blog(LOG_WARNING, "HTTP Error %s", errorString.toStdString().c_str());
+	} else {
+		blog(LOG_INFO, "HTTP Call Successful");
+	}
 }
 
 void DelayAgent::sslErrors(const QList<QSslError> &errors)
