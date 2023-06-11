@@ -10,6 +10,7 @@
 
 #define ENDPOINT "https://4mtbvr6meium22qtmt3thewsfy0jrbpa.lambda-url.eu-west-2.on.aws/"
 
+#define PROTOCOL_VERSION "1"
 #define DELAY_PUSH_PERIOD_SEC 10000
 #define REQUIRED_STREAM "simple_stream"
 #define REQUIRED_BROWSER_SOURCE "tapgame"
@@ -98,24 +99,29 @@ void DelayAgent::TimerDecrement() {
 
 	if (!ctx_->found_streamer_key) {
 		blog(LOG_WARNING, "Plugin setup incorrect");
-		// TODO: Report this problem to the platform
 		return;
 	}
 
 	ReportConnection();
-
-	if (!ctx_->found_delay) {
-		blog(LOG_INFO, "Streaming not started");
-		// TODO: Consider reporting to the platform
-		return;
-	}
 }
 
 void DelayAgent::ReportConnection() {
+	blog(LOG_INFO, "Reporting to TapGame");
+	bool streaming = ctx_->found_delay;
 	QString url = QString(ENDPOINT) + "?StreamerKey=" + ctx_->streamer_key;
+	QString payload = QString("{\n");
+	payload += QString("\t\"Version\": \"%1\",\n").arg(PROTOCOL_VERSION);
+	payload += QString("\t\"Streaming\": %1,\n").arg(streaming ? "true" : "false");
+	
+	if (ctx_->found_delay) {
+		payload += QString("\t\"Delay\": %1,\n").arg(ctx_->delay);
+	}
 
+	payload += QString("\t\"Revision\": \"%1\"\n").arg(PLUGIN_VERSION);
+	payload += QString("}");
+	QByteArray data = payload.toUtf8();
 	blog(LOG_INFO, "Requesting %s", url.toStdString().c_str());
-	reply.reset(qnam.get(QNetworkRequest(url)));
+	reply.reset(qnam.post(QNetworkRequest(url), data));
 	connect(reply.get(), &QNetworkReply::finished, this, &DelayAgent::HttpFinished);
 	connect(reply.get(), &QNetworkReply::sslErrors, this, &DelayAgent::sslErrors);
 	blog(LOG_INFO, "Requested");
