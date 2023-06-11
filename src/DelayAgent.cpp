@@ -110,6 +110,7 @@ void DelayAgent::ReportConnection() {
 	url += QString("?StreamerKey=") + ctx_->streamer_key;
 	QString payload = QString("{\n");
 	payload += QString("\t\"Version\": \"%1\",\n").arg(PROTOCOL_VERSION);
+	payload += QString("\t\"Env\": \"%1\",\n").arg(BACKOFFICE_ENV);
 	payload += QString("\t\"Streaming\": %1,\n").arg(streaming ? "true" : "false");
 	
 	if (ctx_->found_delay) {

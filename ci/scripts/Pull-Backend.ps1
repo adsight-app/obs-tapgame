@@ -43,12 +43,14 @@ $providers = @"
 "@
 
 & amplify pull --amplify $amplify --frontend $frontend --providers $providers --yes
+Remove-Item -Path "aws-exports\aws-exports.mjs"
 Rename-Item -Path "aws-exports\aws-exports.js" -NewName "aws-exports.mjs"
 $aws_exports = node .\ci\scripts\extract-export.mjs | ConvertFrom-Json
 $endpoint = Write-Output $aws_exports.aws_cloud_logic_custom[0].endpoint
 
 $header_file = @"
 #pragma once
+#define BACKOFFICE_ENV "$Env:USER_BRANCH"
 #define BACKOFFICE_ENDPOINT "$endpoint"
 "@
 
