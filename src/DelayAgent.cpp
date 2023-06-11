@@ -5,10 +5,9 @@
 #include <QUrl>
 
 #include "plugin-macros.generated.h"
+#include "backoffice-endpoint.generated.h"
 
 #include "DelayAgent.hpp"
-
-#define ENDPOINT "https://4mtbvr6meium22qtmt3thewsfy0jrbpa.lambda-url.eu-west-2.on.aws/"
 
 #define PROTOCOL_VERSION "1"
 #define DELAY_PUSH_PERIOD_SEC 10000
@@ -91,7 +90,6 @@ void DelayAgent::StopTimer() {
 }
 
 void DelayAgent::TimerDecrement() {
-	blog(LOG_INFO, "Timer Elapsed");
 	ctx_->found_delay = false;
 	ctx_->found_streamer_key = false;
 	obs_enum_sources(next_source, ctx_);
@@ -106,9 +104,10 @@ void DelayAgent::TimerDecrement() {
 }
 
 void DelayAgent::ReportConnection() {
-	blog(LOG_INFO, "Reporting to TapGame");
 	bool streaming = ctx_->found_delay;
-	QString url = QString(ENDPOINT) + "?StreamerKey=" + ctx_->streamer_key;
+	QString url = QString(BACKOFFICE_ENDPOINT) + "/streamer/v1/keyauth/obs";
+	blog(LOG_INFO, "Reporting to TapGame %s", url.toStdString().c_str());
+	url += QString("?StreamerKey=") + ctx_->streamer_key;
 	QString payload = QString("{\n");
 	payload += QString("\t\"Version\": \"%1\",\n").arg(PROTOCOL_VERSION);
 	payload += QString("\t\"Streaming\": %1,\n").arg(streaming ? "true" : "false");
@@ -120,7 +119,6 @@ void DelayAgent::ReportConnection() {
 	payload += QString("\t\"Revision\": \"%1\"\n").arg(PLUGIN_VERSION);
 	payload += QString("}");
 	QByteArray data = payload.toUtf8();
-	blog(LOG_INFO, "Requesting %s", url.toStdString().c_str());
 	reply.reset(qnam.post(QNetworkRequest(url), data));
 	connect(reply.get(), &QNetworkReply::finished, this, &DelayAgent::HttpFinished);
 	connect(reply.get(), &QNetworkReply::sslErrors, this, &DelayAgent::sslErrors);
