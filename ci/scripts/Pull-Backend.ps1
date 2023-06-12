@@ -1,6 +1,8 @@
-Write-Output "BACKOFFICE=$Env:AMPLIFY_BACKOFFICE_APP_ID"
-Write-Output  "USER_BRANCH=$Env:USER_BRANCH"
-Write-Output  "AWS_PROFILE=$Env:AWS_PROFILE"
+param([String]$AmplifyEnv=$Env:USER_BRANCH)
+
+Write-Output "Application ID $Env:AMPLIFY_BACKOFFICE_APP_ID"
+Write-Output "Environment $AmplifyEnv"
+Write-Output "AWS Profile $Env:AWS_PROFILE"
 
 $sourceConfig = @"
 {
@@ -23,7 +25,7 @@ $amplify = @"
 {
     "projectName": "tapgamebackoffice",
     "appId": "$Env:AMPLIFY_BACKOFFICE_APP_ID",
-    "envName": "$Env:USER_BRANCH",
+    "envName": "$AmplifyEnv",
     "defaultEditor": "code"
 }
 "@
@@ -50,7 +52,7 @@ $endpoint = Write-Output $aws_exports.aws_cloud_logic_custom[0].endpoint
 
 $header_file = @"
 #pragma once
-#define BACKOFFICE_ENV "$Env:USER_BRANCH"
+#define BACKOFFICE_ENV "$AmplifyEnv"
 #define BACKOFFICE_ENDPOINT "$endpoint"
 "@
 
