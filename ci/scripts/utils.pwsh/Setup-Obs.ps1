@@ -55,7 +55,7 @@ function Setup-Obs {
             '-G', $CmakeGenerator
             "-DCMAKE_SYSTEM_VERSION=${script:PlatformSDK}"
             "-DCMAKE_GENERATOR_PLATFORM=$(if (${script:Target} -eq "x86") { "Win32" } else { "x64" })"
-            "-DCMAKE_GENERATOR_INSTANCE=C:\Program Files\Microsoft Visual Studio\2022\Community,version=17.5.5.0"
+            "-DCMAKE_GENERATOR_INSTANCE=C:\Program Files\Microsoft Visual Studio\2022\Community,version=17.7.34024.191"
             "-DCMAKE_BUILD_TYPE=${script:Configuration}"
             "-DQT_VERSION=${script:QtVersion}"
             '-DENABLE_PLUGINS=OFF'
