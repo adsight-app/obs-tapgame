@@ -7,7 +7,8 @@
 #include <QNetworkReply>
 
 struct DelayAgentContext {
-	bool found_delay;
+	bool found_stream;
+	bool stream_active;
 	uint32_t delay;
 
 	bool found_streamer_key;

@@ -22,7 +22,8 @@ bool next_output(void * param, obs_output_t *output) {
 	if (strncmp(REQUIRED_STREAM, name, 14) == 0) {
 		uint32_t delay = obs_output_get_active_delay(output);
 		ctx->delay = delay;
-		ctx->found_delay = true;
+		ctx->found_stream = true;
+		ctx->stream_active = obs_output_active(output);
 		return false;
 	}
 
@@ -39,8 +40,7 @@ bool next_source(void*param, obs_source_t* source) {
 		const char * value = obs_data_get_string(data, URL_PROPERTY_NAME);
 
 		if (value == NULL) {
-			blog(LOG_WARNING,
-			     "No URL value found for 'tapgame' source");
+			blog(LOG_WARNING, "No URL value found for 'tapgame' source");
 		} else {
 			QRegularExpression re("StreamerKey=([^=&]+)");
 			QRegularExpressionMatch match = re.match(value);
@@ -48,15 +48,11 @@ bool next_source(void*param, obs_source_t* source) {
 			if (match.hasMatch()) {
 				QString key = match.captured(1);
 				ctx->streamer_key = key;
-
-				blog(LOG_INFO, "Matched Key %s",
-				     key.toStdString().c_str());
-
+				blog(LOG_INFO, "Matched Key %s", key.toStdString().c_str());
 				ctx->found_streamer_key = true;
 				rc = false;
 			} else {
-				blog(LOG_WARNING,
-				     "No StreamerKey found in the 'tapgame' source");		
+				blog(LOG_WARNING,"No StreamerKey found in the 'tapgame' source");		
 			}
 		}
 
@@ -90,7 +86,7 @@ void DelayAgent::StopTimer() {
 }
 
 void DelayAgent::TimerDecrement() {
-	ctx_->found_delay = false;
+	ctx_->found_stream = false;
 	ctx_->found_streamer_key = false;
 	obs_enum_sources(next_source, ctx_);
 	obs_enum_outputs(next_output, ctx_);
@@ -104,7 +100,7 @@ void DelayAgent::TimerDecrement() {
 }
 
 void DelayAgent::ReportConnection() {
-	bool streaming = ctx_->found_delay;
+	bool streaming = ctx_->found_stream && ctx_->stream_active;
 	QString url = QString(BACKOFFICE_ENDPOINT) + "/streamer/v1/keyauth/obs";
 	blog(LOG_INFO, "Reporting to TapGame %s", url.toStdString().c_str());
 	url += QString("?StreamerKey=") + ctx_->streamer_key;
@@ -113,12 +109,15 @@ void DelayAgent::ReportConnection() {
 	payload += QString("\t\"Env\": \"%1\",\n").arg(BACKOFFICE_ENV);
 	payload += QString("\t\"Streaming\": %1,\n").arg(streaming ? "true" : "false");
 	
-	if (ctx_->found_delay) {
+	if (ctx_->found_stream) {
 		payload += QString("\t\"Delay\": %1,\n").arg(ctx_->delay);
 	}
 
 	payload += QString("\t\"Revision\": \"%1\"\n").arg(PLUGIN_VERSION);
 	payload += QString("}");
+
+	blog(LOG_INFO, "%s", payload.toStdString().c_str());
+
 	QByteArray data = payload.toUtf8();
 	reply.reset(qnam.post(QNetworkRequest(url), data));
 	connect(reply.get(), &QNetworkReply::finished, this, &DelayAgent::HttpFinished);

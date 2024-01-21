@@ -34,7 +34,7 @@ bool obs_module_load(void)
 	new DelayAgent(main_window);
 
 #if QT_CONFIG(ssl)
-	blog(LOG_INFO, "TapGame plugin initiated with SSL");
+	blog(LOG_INFO, "TapGame plugin initiated with SSL (%s %s)", __DATE__, __TIME__);
 #else
 	blog(LOG_INFO, "TapGame plugin initiated without SSL");
 #endif
