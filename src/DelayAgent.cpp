@@ -5,10 +5,10 @@
 #include <QUrl>
 
 #include "plugin-macros.generated.h"
-#include "backoffice-endpoint.generated.h"
 
 #include "DelayAgent.hpp"
 
+#define BACKOFFICE_ENDPOINT "https://api.adsight.app"
 #define PROTOCOL_VERSION "1"
 #define DELAY_PUSH_PERIOD_SEC 10000
 #define REQUIRED_STREAM "simple_stream"
@@ -106,7 +106,6 @@ void DelayAgent::ReportConnection() {
 	url += QString("?StreamerKey=") + ctx_->streamer_key;
 	QString payload = QString("{\n");
 	payload += QString("\t\"Version\": \"%1\",\n").arg(PROTOCOL_VERSION);
-	payload += QString("\t\"Env\": \"%1\",\n").arg(BACKOFFICE_ENV);
 	payload += QString("\t\"Streaming\": %1,\n").arg(streaming ? "true" : "false");
 	
 	if (ctx_->found_stream) {
