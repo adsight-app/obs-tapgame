@@ -37,7 +37,7 @@ set_target_properties(
              AUTORCC ON)
 #]]
 
-set(OPENSSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/vendor/OpenSSL)
+#set(OPENSSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/vendor/OpenSSL)
 find_package(OpenSSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::Crypto OpenSSL::SSL)
 
