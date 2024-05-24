@@ -11,7 +11,8 @@
 #define BACKOFFICE_ENDPOINT "https://api.adsight.app"
 #define PROTOCOL_VERSION "1"
 #define DELAY_PUSH_PERIOD_SEC 10000
-#define REQUIRED_STREAM "simple_stream"
+#define REQUIRED_STREAM_SIMPLE "simple_stream"
+#define REQUIRED_STREAM_ADVANCED "adv_stream"
 #define REQUIRED_BROWSER_SOURCE "tapgame"
 #define URL_PROPERTY_NAME "url"
 
@@ -19,7 +20,8 @@ bool next_output(void * param, obs_output_t *output) {
 	DelayAgentContext *ctx = static_cast<DelayAgentContext *>(param);
 	const char * name = obs_output_get_name(output);
 
-	if (strncmp(REQUIRED_STREAM, name, 14) == 0) {
+	if (strncmp(REQUIRED_STREAM_SIMPLE, name, 14) == 0 ||
+	    strncmp(REQUIRED_STREAM_ADVANCED, name, 11) == 0) {
 		uint32_t delay = obs_output_get_active_delay(output);
 		ctx->delay = delay;
 		ctx->found_stream = true;
@@ -124,20 +126,26 @@ void DelayAgent::ReportConnection() {
 	blog(LOG_INFO, "Requested");
 }
 
-void DelayAgent::HttpFinished(){
+void DelayAgent::HttpFinished() {
 	blog(LOG_INFO, "HTTP Finished");
+
 	QNetworkReply::NetworkError error = reply->error();
-	
-	if(error != QNetworkReply::NetworkError::NoError) {
+
+	if (error != QNetworkReply::NetworkError::NoError) {
 		const QString &errorString = reply->errorString();
-		blog(LOG_WARNING, "HTTP Error %s", errorString.toStdString().c_str());
+		QByteArray responseBody = reply->readAll();
+
+		blog(LOG_WARNING, "HTTP Error (%d) %s",
+		     static_cast<int>(error),
+		     errorString.toStdString().c_str());
+		blog(LOG_INFO, "HTTP Response Body: %s",
+		     responseBody.toStdString().c_str());
 	} else {
 		blog(LOG_INFO, "HTTP Call Successful");
 	}
 }
 
-void DelayAgent::sslErrors(const QList<QSslError> &errors)
-{
+void DelayAgent::sslErrors(const QList<QSslError> &errors) {
 	QString errorString;
 	for (const QSslError &error : errors) {
 		if (!errorString.isEmpty())
